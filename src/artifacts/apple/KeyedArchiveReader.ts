@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import { join } from "node:path";
-import { parseBinary } from "plist";
 import { z } from "zod";
 import {
   AnalysisInputError,
@@ -8,12 +7,10 @@ import {
 } from "../../domain/analysisErrorCore.js";
 import { unknownDateLimitation } from "../../domain/apple/plistValue.js";
 import { createPlistNumberProjection } from "../../domain/apple/plistNumbers.js";
-import {
-  decodeBinaryPlistNumbers,
-  scanBinaryPlistNumberLiterals,
-} from "./PlistNumberLiterals.js";
+import { scanBinaryPlistNumberLiterals } from "./PlistNumberLiterals.js";
 import {
   omittedPrototypeKeysLimitation,
+  parseBinaryPropertyList,
   parseXmlPropertyList,
 } from "../../domain/propertyListKeys.js";
 import {
@@ -73,9 +70,7 @@ export const decodeKeyedArchiveBytes = (
   const parsed =
     binaryExpansion !== undefined
       ? {
-          value: parseBinary(
-            decodeBinaryPlistNumbers(bytes, binaryNumberMetadata!),
-          ),
+          value: parseBinaryPropertyList(bytes),
           numberLiterals: binaryNumberMetadata!.literals,
           omittedPrototypeKeys: binaryExpansion.binaryPrototypeKeyObserved
             ? null
